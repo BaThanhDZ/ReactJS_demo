@@ -1,29 +1,36 @@
 import './App.css';
 
-
 import React, { Component } from 'react';
 import Title from './components/Title';
 import Control from './components/Control';
 import Form from './components/Form';
 import List from './components/List';
-import _ from 'lodash';
-// import { filter, includes } from 'lodash';
-
 import items from './mocks/Task';
+import _ from 'lodash';
 
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      items: items,
-      isShowForm: false,
-      valueSearch: "",
+      items       : items,
+      isShowForm  : false,
+      valueSearch : "",
+      orderBys    : "name",
+      orderDir    : "asc"
+
     }
 
     this.handleForm = this.handleForm.bind(this);
     this.closeForm = this.closeForm.bind(this);
     this.clickSearch = this.clickSearch.bind(this);
+    this.handleSort = this.handleSort.bind(this);
+  }
+  handleSort(orderBys, orderDir) {
+    this.setState({
+      orderBys: orderBys,
+      orderDir: orderDir,
+    })
   }
   clickSearch(value) {
     this.setState({valueSearch: value});
@@ -46,10 +53,15 @@ class App extends Component {
     let isShowForm  = this.state.isShowForm;
     let elForm      = null;
     const search    = this.state.valueSearch;
+    let {orderBys}  = this.state;
+    let {orderDir}  = this.state;
+
+    // TO DO SORT
+    items = _.orderBy(items, [orderBys], [orderDir]);
 
     // TO DO SEARCH
     items = _.filter(itemsBasic, (item) => {
-      return _.includes(item.name, search);
+      return _.includes(item.name.toLowerCase(), search.toLowerCase());
     });
 
     // if(search.length > 0) {
@@ -82,6 +94,9 @@ class App extends Component {
         <Title/>
 
         <Control 
+          orderBys={orderBys}
+          orderDir={orderDir}
+          onClickSort={this.handleSort}
           onclickSearch={this.clickSearch}
           onClickAdd={this.handleForm}
           isShowForm={isShowForm}
