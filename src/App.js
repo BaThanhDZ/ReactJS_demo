@@ -6,25 +6,75 @@ import Control from './components/Control';
 import Form from './components/Form';
 import List from './components/List';
 import items from './mocks/Task';
-import _ from 'lodash';
+import _, { reject } from 'lodash';
+const { v4: uuidv4 } = require('uuid');
 
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      items       : items,
-      isShowForm  : false,
-      valueSearch : "",
-      orderBys    : "name",
-      orderDir    : "asc"
+      items         : items,
+      isShowForm    : false,
+      valueSearch   : "",
+      orderBys      : "name",
+      orderDir      : "asc",
+      itemsSelected : "",
 
     }
 
-    this.handleForm = this.handleForm.bind(this);
-    this.closeForm = this.closeForm.bind(this);
-    this.clickSearch = this.clickSearch.bind(this);
-    this.handleSort = this.handleSort.bind(this);
+    this.handleForm       = this.handleForm.bind(this);
+    this.closeForm        = this.closeForm.bind(this);
+    this.clickSearch      = this.clickSearch.bind(this);
+    this.handleSort       = this.handleSort.bind(this);
+    this.handleDeleteItem = this.handleDeleteItem.bind(this);
+    this.handleSubmit     = this.handleSubmit.bind(this),
+    this.handleEditItem   = this.handleEditItem.bind(this)
+  }
+  
+  handleSubmit(item) {
+    let {items} = this.state; 
+    // let id = '';
+    if(item.id !== '') { // edit
+      items = _.reject(items, {id: item.id});
+      items.unshift({
+        id: item.id,
+        name: item.name,
+        level: +item.level
+      })
+      // items.forEach((index, key) => {
+      //   if(index.id === item.id) {
+      //     items[key].name = item.name;
+      //     items[key].level = +item.level;
+      //   }
+      // })
+    }
+    else { // thêm mới
+      items.unshift({
+        id: uuidv4(),
+        name: item.name,
+        level: +item.level,
+      })
+    }
+    
+    this.setState({
+      items: items,
+      isShowForm: false,
+    })
+  }
+  handleEditItem(item) {
+    this.setState({
+      itemsSelected: item,
+      isShowForm: true
+    })
+  }
+  handleDeleteItem(id) {
+    let items = _.remove(this.state.items, (item) => {
+      return item.id === id;
+    })
+    this.setState({
+      items: this.state.items,
+    })
   }
   handleSort(orderBys, orderDir) {
     this.setState({
@@ -37,7 +87,8 @@ class App extends Component {
   }
   handleForm() {
     this.setState({
-      isShowForm: !this.state.isShowForm
+      isShowForm: !this.state.isShowForm,
+      itemsSelected: '',
     });
   }
   closeForm() {
@@ -55,14 +106,18 @@ class App extends Component {
     const search    = this.state.valueSearch;
     let {orderBys}  = this.state;
     let {orderDir}  = this.state;
-
-    // TO DO SORT
-    items = _.orderBy(items, [orderBys], [orderDir]);
+    let {itemsSelected} = this.state;
 
     // TO DO SEARCH
     items = _.filter(itemsBasic, (item) => {
       return _.includes(item.name.toLowerCase(), search.toLowerCase());
     });
+    
+    // TO DO SORT
+    items = _.orderBy(items, [orderBys], [orderDir]);
+
+    // TO DO DELETE
+
 
     // if(search.length > 0) {
     //   let searchGo = search.toLowerCase();
@@ -87,7 +142,7 @@ class App extends Component {
 
 
     if(isShowForm) {
-      elForm = <Form onClickCancel={this.closeForm}/>;
+      elForm = <Form itemsSelected={itemsSelected} onClickSubmit={this.handleSubmit} onClickCancel={this.closeForm}/>;
     }
     return (
       <div>
@@ -104,7 +159,11 @@ class App extends Component {
 
         {elForm}
 
-        <List items={items} />
+        <List 
+          onClickEditItem={this.handleEditItem}
+          onclickDeleteItem={this.handleDeleteItem} 
+          items={items}
+        />
       </div>
     );
   }

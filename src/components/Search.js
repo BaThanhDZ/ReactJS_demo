@@ -19,7 +19,7 @@ class Search extends Component {
   }
   handleClear() {
     this.setState({elSearch: ""});
-    this.props.clickSearchGo({elSearch: ""})
+    this.props.clickSearchGo("")
 
   }
   handleChange(index) {

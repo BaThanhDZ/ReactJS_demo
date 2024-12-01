@@ -5,10 +5,17 @@ class Item extends Component {
   constructor(props) {
     super(props);
 
-
+    this.handleDelete = this.handleDelete.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
+  }
+  handleEdit(item) {
+    this.props.onclickEdit(item);
+  }
+  handleDelete(id) {
+    this.props.onclickDelete(id);
   }
   setLevel(level) {
-    let elLevel = <span className="label label-default">Normal</span>;
+    let elLevel = <span className="label label-default">Small</span>;
 
     if(level === 1) {
       elLevel = <span className="label label-danger">High</span>;
@@ -28,8 +35,8 @@ class Item extends Component {
             <td>{item.name}</td>
           <td className="text-center">{this.setLevel(item.level)}</td>
             <td>
-                <button type="button" className="btn btn-warning">Edit</button>
-                <button type="button" className="btn btn-danger">Delete</button>
+                <button onClick={() => this.handleEdit(item)} type="button" className="btn btn-warning">Edit</button>
+                <button onClick={() => this.handleDelete(item.id)} type="button" className="btn btn-danger">Delete</button>
             </td>
         </tr>
     );

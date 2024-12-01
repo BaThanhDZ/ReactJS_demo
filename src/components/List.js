@@ -12,7 +12,15 @@ class List extends Component {
   render() {
     const items = this.props.items;
     const elItems = items.map((item, index) => {
-      return (<Item key={index} item={item} id={index}/>)
+      return (
+        <Item 
+          onclickEdit={this.props.onClickEditItem} 
+          onclickDelete={this.props.onclickDeleteItem} 
+          key={index} 
+          item={item} 
+          id={index}
+        />
+      )
     })
     return (
         <div className="panel panel-success">
